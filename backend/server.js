@@ -16,6 +16,27 @@ app.use(cors({
 }));
 app.use(express.json());
 
+app.get("/api/files", async (req, res, next) => { 
+  try { 
+    const result = await s3 
+      .listObjectsV2({ 
+        Bucket: AWS_S3_BUCKET_NAME, 
+        Prefix: "uploads/", 
+        MaxKeys: 1000 
+      }) 
+      .promise(); 
+    const files = (result.Contents || []).map((file) => ({ 
+      key: file.Key, 
+      name: file.Key.split("/").pop(), 
+      size: file.Size, 
+      lastModified: file.LastModified 
+    })); 
+    res.json({ files });
+  } catch (error) { 
+    next(error); 
+  } 
+}); 
+
 app.get("/", (req, res) => {
   res.json({
     message: "Cloud File Manager backend is running",
@@ -29,8 +50,6 @@ app.get("/health", (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
-
-app.get("/app/files", async (req, res, next) =>){};
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
