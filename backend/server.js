@@ -30,6 +30,8 @@ app.get("/health", (req, res) => {
   });
 });
 
+app.get("/app/files", async (req, res, next) =>){};
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
